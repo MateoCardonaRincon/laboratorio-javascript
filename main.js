@@ -31,7 +31,7 @@
 
 
 /**
- * Función anónima que implementa el prototipo Bar para crear las barras
+ * Función anónima que implementa el prototipo Bar para crear las BARRAS
  */
 (function () {
     self.Bar = function (x, y, width, height, board) {
@@ -64,6 +64,9 @@
 })();
 
 
+/**
+ * Función anónima que implementa el prototipo Ball para crear la BOLA con sus atributos
+ */
 (function () {
     self.Ball = function (x, y, radius, board) {
         this.x = x;
@@ -113,7 +116,7 @@
 
 
 /**
- * Función anónima para crear un elemento canvas (elemento de dibujo)
+ * Función anónima para manipular un elemento canvas (elemento de dibujo)
  * sobre el cual mostrar el tablero
  */
 (function () {
@@ -161,7 +164,7 @@
     }
 
     /**
-     * Función auxiliar o 'helper' para dibujar los elementos, no hace parte del protoripo BoardView
+     * Función auxiliar para dibujar los elementos, no hace parte del protoripo BoardView
      */
     function draw(ctx, element) {
         switch (element.kind) {
@@ -230,7 +233,7 @@ var ball = new Ball(400, 200, 10, board)
 
 /**
  * Se agrega un evento para detectar si se presionaron las teclas "ArrowUp" o "ArrowDown"
- * para la barra bar1, o si se presionan las teclas "w" o "s" para mover la barra bar2
+ * para la barra bar2, o si se presionan las teclas "w" o "s" para mover la barra bar1
  */
 document.addEventListener("keydown", function (ev) {
     if (ev.code === "ArrowUp") {
@@ -255,7 +258,6 @@ document.addEventListener("keydown", function (ev) {
  * Inicializa el primer pantallazo del juego, el cual inicia pausado.
  */
 boardView.draw();
-
 
 /**
  * Ejecutar la función controller al cargar la ventana
