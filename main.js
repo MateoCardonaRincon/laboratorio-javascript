@@ -69,19 +69,44 @@
         this.x = x;
         this.y = y;
         this.radius = radius;
+        this.speedY = 0;
         this.speedX = 3;
-        this.speedY = 3;
+        this.speed = 3;
         this.board = board;
         this.kind = "circle";
-        this.direction = 1;
+        this.direction = -1;
+        this.bounceAngle = 0;
+        this.maxBounceAngle = Math.PI / 12;
 
         board.ball = this;
     }
 
     self.Ball.prototype = {
+        get width() {
+            return this.radius * 2;
+        },
+        get height() {
+            return this.radius * 2;
+        },
         move: function () {
             this.x += (this.speedX * this.direction)
-            this.y += (this.speedY * this.direction)
+            this.y += (this.speedY)
+        },
+        collision: function (bar) {
+            // Para calcular el ángulo con el que rebota la pelota al colisionar hacemos lo siguiente
+            var relativeIntersectY = (bar.y + (bar.height / 2)) - this.y;
+            var normalizedIntersectY = relativeIntersectY / (bar.height / 2);
+
+            this.bounceAngle = normalizedIntersectY * this.maxBounceAngle;
+
+            this.speedY = this.speed * -Math.sin(this.bounceAngle);
+            this.speedX = this.speed * Math.cos(this.bounceAngle);
+
+            if (this.x > (this.board.width / 2)) {
+                this.direction = -1
+            } else {
+                this.direction = 1;
+            }
         }
     }
 })();
@@ -121,14 +146,22 @@
             if (this.board.playing) {
                 this.clean();
                 this.draw();
+                this.checkCollision();
                 this.board.ball.move();
             }
 
+        },
+        checkCollision: function () {
+            for (bar of this.board.bars) {
+                if (hit(bar, this.board.ball)) {
+                    this.board.ball.collision(bar);
+                }
+            }
         }
     }
 
     /**
-     * Función auxiliar para dibujar los elementos, no hace parte del protoripo BoardView
+     * Función auxiliar o 'helper' para dibujar los elementos, no hace parte del protoripo BoardView
      */
     function draw(ctx, element) {
         switch (element.kind) {
@@ -145,6 +178,40 @@
 
     }
 
+    /**
+     * La función auxiliar hit detecta si ocurrió una colisión entre la bola y la barra que
+     * recibe como parámetro
+    */
+    function hit(a, b) {
+
+        // Colisión horizontal
+        if (b.x + b.width >= a.x && b.x < a.x + a.width) {
+
+            // Colisión vertical
+            if (b.y + b.height >= a.y && b.y < a.y + a.height) {
+                return true;
+            }
+        }
+
+        // Colisión de a con b
+        if (b.x <= a.x && b.x + b.width >= a.x + a.width) {
+
+            if (b.y <= a.y && b.y + b.height >= a.y + a.height) {
+                return true;
+            }
+        }
+
+        // Colisión de b con a
+        if (a.x <= b.x && a.x + a.width >= b.x + b.width) {
+
+            if (a.y <= b.y && a.y + a.height >= b.y + b.height) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 })();
 
 
@@ -155,11 +222,11 @@
  * También se instancian las dos barras pasando sus parámetros en el constructor
  */
 var board = new Board(800, 400);
-var bar1 = new Bar(0, 100, 40, 100, board);
-var bar2 = new Bar(760, 20, 40, 100, board);
+var bar1 = new Bar(20, 100, 40, 100, board);
+var bar2 = new Bar(740, 200, 40, 100, board);
 var canvas = document.getElementById("canvas");
 var boardView = new BoardView(canvas, board);
-var ball = new Ball(300, 50, 10, board)
+var ball = new Ball(700, 250, 10, board)
 
 /**
  * Se agrega un evento para detectar si se presionaron las teclas "ArrowUp" o "ArrowDown"
