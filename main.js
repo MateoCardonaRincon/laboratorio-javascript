@@ -70,8 +70,8 @@
         this.y = y;
         this.radius = radius;
         this.speedY = 0;
-        this.speedX = 3;
-        this.speed = 3;
+        this.speedX = 5;
+        this.speed = 5;
         this.board = board;
         this.kind = "circle";
         this.direction = -1;
@@ -185,7 +185,7 @@
     function hit(a, b) {
 
         // Colisión horizontal
-        if (b.x + b.width >= a.x && b.x < a.x + a.width) {
+        if (b.x + b.width >= a.x + a.width && b.x < a.x + a.width) {
 
             // Colisión vertical
             if (b.y + b.height >= a.y && b.y < a.y + a.height) {
@@ -222,11 +222,11 @@
  * También se instancian las dos barras pasando sus parámetros en el constructor
  */
 var board = new Board(800, 400);
-var bar1 = new Bar(20, 100, 40, 100, board);
-var bar2 = new Bar(740, 200, 40, 100, board);
+var bar1 = new Bar(5, 150, 40, 100, board);
+var bar2 = new Bar(755, 150, 40, 100, board);
 var canvas = document.getElementById("canvas");
 var boardView = new BoardView(canvas, board);
-var ball = new Ball(700, 250, 10, board)
+var ball = new Ball(400, 200, 10, board)
 
 /**
  * Se agrega un evento para detectar si se presionaron las teclas "ArrowUp" o "ArrowDown"
@@ -235,16 +235,16 @@ var ball = new Ball(700, 250, 10, board)
 document.addEventListener("keydown", function (ev) {
     if (ev.code === "ArrowUp") {
         ev.preventDefault();
-        bar1.up();
+        bar2.up();
     } else if (ev.code === "ArrowDown") {
         ev.preventDefault();
-        bar1.down();
+        bar2.down();
     } else if (ev.code === "KeyW") {
         ev.preventDefault();
-        bar2.up();
+        bar1.up();
     } else if (ev.code === "KeyS") {
         ev.preventDefault();
-        bar2.down();
+        bar1.down();
     } else if (ev.code === "Space") {
         ev.preventDefault();
         board.playing = !board.playing;  // Pausa el juego si es false, lo reinicia si es true
