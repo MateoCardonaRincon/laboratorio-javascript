@@ -15,10 +15,14 @@
 
     /**
      * Getter de los elementos (barras y bola)
+     * el spreed operator [...this.bars] dentro del getter se usa para generar una copia
+     * del atributo bar de modo que el recolector de basuras del navegador deseche
+     * el elemento bar anterior y que ya no se está mostrando.
+     * También puede hacerse con un map() como se muestra en el video.
      */
     self.Board.prototype = {
         get elements() {
-            var elements = this.bars.map((bar) => bar);
+            var elements = [...this.bars];
             elements.push(this.ball);
             return elements;
         }
@@ -66,11 +70,19 @@
         this.y = y;
         this.radius = radius;
         this.speedX = 3;
-        this.speedY = 0;
+        this.speedY = 3;
         this.board = board;
         this.kind = "circle";
+        this.direction = 1;
 
         board.ball = this;
+    }
+
+    self.Ball.prototype = {
+        move: function () {
+            this.x += (this.speedX * this.direction)
+            this.y += (this.speedY * this.direction)
+        }
     }
 })();
 
@@ -106,8 +118,12 @@
             }
         },
         play: function () {
-            this.clean();
-            this.draw();
+            if (this.board.playing) {
+                this.clean();
+                this.draw();
+                this.board.ball.move();
+            }
+
         }
     }
 
@@ -151,25 +167,35 @@ var ball = new Ball(300, 50, 10, board)
  */
 document.addEventListener("keydown", function (ev) {
     if (ev.code === "ArrowUp") {
+        ev.preventDefault();
         bar1.up();
     } else if (ev.code === "ArrowDown") {
+        ev.preventDefault();
         bar1.down();
     } else if (ev.code === "KeyW") {
+        ev.preventDefault();
         bar2.up();
     } else if (ev.code === "KeyS") {
+        ev.preventDefault();
         bar2.down();
+    } else if (ev.code === "Space") {
+        ev.preventDefault();
+        board.playing = !board.playing;  // Pausa el juego si es false, lo reinicia si es true
     }
 });
 
+/**
+ * Inicializa el primer pantallazo del juego, el cual inicia pausado.
+ */
+boardView.draw();
 
-
-self.addEventListener("load", controller);
 
 /**
  * Ejecutar la función controller al cargar la ventana
  * Se define el tamaño del tablero al intanciar un Board y se instancia el BoardView (canvas)
  * También se instancian las dos barras pasando sus parámetros en el constructor
  */
+self.addEventListener("load", controller);
 function controller() {
     boardView.play();
     /**
