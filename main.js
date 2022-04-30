@@ -1,6 +1,6 @@
 
 /**
- * Función anónima para crear el tablero a través de un prototipo Board
+ * Función anónima para crear el TABLERO a través de un prototipo Board
  * Además de sus propiedades.
 */
 (function () {
@@ -18,7 +18,7 @@
      */
     self.Board.prototype = {
         get elements() {
-            var elements = this.bars;
+            var elements = this.bars.map((bar) => bar);
             elements.push(this.ball);
             return elements;
         }
@@ -27,7 +27,7 @@
 
 
 /**
- * Se implementa el prototipo para crear las barras
+ * Función anónima que implementa el prototipo Bar para crear las barras
  */
 (function () {
     self.Bar = function (x, y, width, height, board) {
@@ -60,6 +60,21 @@
 })();
 
 
+(function () {
+    self.Ball = function (x, y, radius, board) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.speedX = 3;
+        this.speedY = 0;
+        this.board = board;
+        this.kind = "circle";
+
+        board.ball = this;
+    }
+})();
+
+
 /**
  * Función anónima para crear un elemento canvas (elemento de dibujo)
  * sobre el cual mostrar el tablero
@@ -78,11 +93,21 @@
      * Se añade el método para dibujar los elementos en el canvas
      */
     self.BoardView.prototype = {
+        /**
+         * Limpiar el canvas dentro del área especificada, en este caso, el rectángulo que forma el tablero
+         */
+        clean: function () {
+            this.ctx.clearRect(0, 0, board.width, board.height);
+        },
         draw: function () {
             for (var i = this.board.elements.length - 1; i >= 0; i--) {
                 var el = this.board.elements[i];
                 draw(this.ctx, el)
             }
+        },
+        play: function () {
+            this.clean();
+            this.draw();
         }
     }
 
@@ -90,44 +115,65 @@
      * Función auxiliar para dibujar los elementos, no hace parte del protoripo BoardView
      */
     function draw(ctx, element) {
-        if (element !== null && element.hasOwnProperty("kind"))
-            switch (element.kind) {
-                case "rectangle":
-                    ctx.fillRect(element.x, element.y, element.width, element.height);
-                    break;
-            }
+        switch (element.kind) {
+            case "rectangle":
+                ctx.fillRect(element.x, element.y, element.width, element.height);
+                break;
+            case "circle":
+                ctx.beginPath();
+                ctx.arc(element.x, element.y, element.radius, 0, 7)
+                ctx.fill();
+                ctx.closePath();
+                break;
+        }
+
     }
 
 })();
 
+
+/*
+* Se generan las instancias en el scope global para poder accederlas desde cualquier
+* parte del código.
+* Se define el tamaño del tablero al intanciar un Board y se instancia el BoardView (canvas)
+ * También se instancian las dos barras pasando sus parámetros en el constructor
+ */
 var board = new Board(800, 400);
 var bar1 = new Bar(0, 100, 40, 100, board);
 var bar2 = new Bar(760, 20, 40, 100, board);
 var canvas = document.getElementById("canvas");
 var boardView = new BoardView(canvas, board);
+var ball = new Ball(300, 50, 10, board)
 
 /**
- * Se agrega un evento para detectar si se precionaron las teclas "ArrowUp" o "ArrowDown"
+ * Se agrega un evento para detectar si se presionaron las teclas "ArrowUp" o "ArrowDown"
+ * para la barra bar1, o si se presionan las teclas "w" o "s" para mover la barra bar2
  */
 document.addEventListener("keydown", function (ev) {
     if (ev.code === "ArrowUp") {
         bar1.up();
     } else if (ev.code === "ArrowDown") {
         bar1.down();
+    } else if (ev.code === "KeyW") {
+        bar2.up();
+    } else if (ev.code === "KeyS") {
+        bar2.down();
     }
 });
 
 
+
+self.addEventListener("load", controller);
+
 /**
- * Ejecutar la función main al cargar la ventana
+ * Ejecutar la función controller al cargar la ventana
  * Se define el tamaño del tablero al intanciar un Board y se instancia el BoardView (canvas)
  * También se instancian las dos barras pasando sus parámetros en el constructor
  */
-self.addEventListener("load", main);
-
-function main() {
+function controller() {
+    boardView.play();
     /**
-     * Se define el tamaño del table
+     * Esta línea se usa para refrescar el canvas y actualizar la vista de las barras y la bola
      */
-    boardView.draw();
+    window.requestAnimationFrame(controller);
 }
