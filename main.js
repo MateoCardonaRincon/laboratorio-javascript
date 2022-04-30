@@ -25,6 +25,7 @@
     }
 })();
 
+
 /**
  * Se implementa el prototipo para crear las barras
  */
@@ -36,19 +37,24 @@
         this.height = height;
         this.board = board;
         this.board.bars.push(this);
-        this.kind = "rectangle"
+        this.kind = "rectangle";
+        this.speed = 10;
     }
 
     /**
-     * Se declaran los métodos para subir y bajar las barras
+     * Se implementan los métodos para subir y bajar las barras
      */
     self.Bar.prototype = {
         down: function () {
-
+            this.y += this.speed;
         },
         up: function () {
-
+            this.y -= this.speed;
+        },
+        toString: function () {
+            return "x:" + this.x + " y:" + this.y
         }
+
     }
 
 })();
@@ -94,9 +100,28 @@
 
 })();
 
+var board = new Board(800, 400);
+var bar1 = new Bar(0, 100, 40, 100, board);
+var bar2 = new Bar(760, 20, 40, 100, board);
+var canvas = document.getElementById("canvas");
+var boardView = new BoardView(canvas, board);
+
+/**
+ * Se agrega un evento para detectar si se precionaron las teclas "ArrowUp" o "ArrowDown"
+ */
+document.addEventListener("keydown", function (ev) {
+    if (ev.code === "ArrowUp") {
+        bar1.up();
+    } else if (ev.code === "ArrowDown") {
+        bar1.down();
+    }
+});
+
+
 /**
  * Ejecutar la función main al cargar la ventana
  * Se define el tamaño del tablero al intanciar un Board y se instancia el BoardView (canvas)
+ * También se instancian las dos barras pasando sus parámetros en el constructor
  */
 self.addEventListener("load", main);
 
@@ -104,11 +129,5 @@ function main() {
     /**
      * Se define el tamaño del table
      */
-    var board = new Board(800, 400);
-    var bar = new Bar(0, 100, 40, 100, board);
-    var bar = new Bar(760, 20, 40, 100, board);
-    var canvas = document.getElementById("canvas");
-    var boardView = new BoardView(canvas, board);
-
     boardView.draw();
 }
